@@ -1,0 +1,5 @@
+.env
+__pychace__/
+references/
+
+!referenves/logo.png

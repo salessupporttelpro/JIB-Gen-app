@@ -1,0 +1,10 @@
+python-docx>=1.1
+pdfplumber>=0.11
+openpyxl>=3.1
+pandas==2.1.4
+streamlit==1.49.1
+dash==3.2.0
+json
+docx
+google-genai
+python-doenv
