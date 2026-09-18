@@ -28,11 +28,19 @@ load_dotenv()
 
 st.set_page_config(page_title="JIB Composer - GSD", layout="wide")
 
+
 # ==============================================================================
-# SISTEM LOGIN SEDERHANA (MEMBACA DARI .ENV)
+# SISTEM LOGIN SEDERHANA (MEMBACA DARI Secret Key)
 # ==============================================================================
-ENV_USERNAME = os.getenv("APP_USERNAME", "admin")
-ENV_PASSWORD = os.getenv("APP_PASSWORD", "gsd123")
+def get_config(key, default=""):
+    # Cek di Streamlit Secrets dulu, jika tidak ada baru cek os.getenv (.env)
+    if key in st.secrets:
+        return st.secrets[key]
+    return os.getenv(key, default)
+
+
+ENV_USERNAME = get_config("APP_USERNAME", "admin")
+ENV_PASSWORD = get_config("APP_PASSWORD", "gsd123")
 
 
 def check_password():
@@ -97,8 +105,8 @@ st.caption(
 )
 
 # Ambil API Keys
-raw_keys = os.getenv("GEMINI_API_KEYS", os.getenv("GEMINI_API_KEY", ""))
-api_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
+raw_keys = get_config("GEMINI_API_KEY", get_config("GEMINI_API_KEYS", ""))
+api_keys = [k.strip() for k in str(raw_keys).split(",") if k.strip()]
 
 # Status Sidebar Dinamis + Tombol Logout
 with st.sidebar:
