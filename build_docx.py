@@ -46,8 +46,8 @@ def _find_local_logo() -> str:
     return None
 
 
-def _clean_text(text: str) -> str:
-    """Menghapus penomoran ganda di awal dan memastikan ada tanda titik di akhir kalimat."""
+def _clean_text(text: str, add_dot: True) -> str:
+    """Menghapus penomoran ganda di awal dan opsional menambahkan titik di akhir."""
     if not text:
         return "-"
     s = str(text).strip()
@@ -57,8 +57,8 @@ def _clean_text(text: str) -> str:
     if not cleaned:
         cleaned = s
 
-    # Tambahkan titik di akhir kalimat jika belum ada tanda baca (. ! ?)
-    if cleaned and cleaned[-1] not in [".", "!", "?", ":", ";"]:
+    # Tambahkan titik di akhir kalimat HANYA JIKA add_dot=True (untuk narasi)
+    if add_dot and cleaned and cleaned[-1] not in [".", "!", "?", ":", ";"]:
         cleaned += "."
 
     return cleaned
@@ -118,7 +118,7 @@ def _set_table_borders(table, color_hex="000000", sz="4", val="single"):
 
 
 def _add_flexible_table(cell, rows):
-    """Membuat tabel anak (tabel finansial/kelayakan) dengan Header Uraian Pekerjaan & Remarks."""
+    """Membuat tabel anak (tabel finansial/kelayakan) dengan ukuran kolom memadai."""
     if not isinstance(rows, list) or not rows:
         return
 
@@ -134,11 +134,11 @@ def _add_flexible_table(cell, rows):
     tbl = cell.add_table(rows=len(rows) + 1, cols=num_cols)
     tbl.autofit = False
 
-    total_width = Inches(2.5)
+    # PERBAIKAN LEBAR KOLOM: Beri ruang lebih luas untuk nominal angka
     if num_cols == 2:
-        col_widths = [Inches(1.8), Inches(0.75)]
+        col_widths = [Inches(2.6), Inches(1.8)]  # Kolom nilai dilebarkan dari 0.75" ke 1.8"
     else:
-        col_widths = [total_width / num_cols] * num_cols
+        col_widths = [Inches(4.4) / num_cols] * num_cols
 
     for i, col in enumerate(tbl.columns):
         if i < len(col_widths):
@@ -172,7 +172,9 @@ def _add_flexible_table(cell, rows):
                 val_text = str(item.get(k, "-"))
             else:
                 val_text = str(item)
-            c.text = _clean_text(val_text)
+            
+            # PERBAIKAN TITIK: Set add_dot=False agar isi sel tabel tidak diberi titik di akhir
+            c.text = _clean_text(val_text, add_dot=False)
 
             for p in c.paragraphs:
                 p.paragraph_format.space_after = Pt(2)
